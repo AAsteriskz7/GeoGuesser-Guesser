@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Location Guesser",
+    "version": "1.0",
+    "description": "Takes a screenshot of your webpage and uses the Gemini API to guess the location.",
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "scripting", 
+      "storage"
+    ],
+    "host_permissions": [
+      "https://generativelanguage.googleapis.com/*"    ],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
+  
