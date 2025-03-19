@@ -7,7 +7,7 @@
     body { 
       font-family: sans-serif; 
       padding: 10px; 
-      min-width: 300px;
+      min-width: 320px;
     }
     #result { 
       margin-top: 10px; 
@@ -16,11 +16,60 @@
       margin-top: 10px; 
       font-weight: bold; 
     }
+    #setup {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f8f8f8;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+    button:hover {
+      background-color: #3367d6;
+    }
+    .status {
+      margin-top: 10px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
-  <div id="result">Taking screenshot...</div>
+  <div id="result">Checking configuration...</div>
   <div id="geminiOutput"></div>
+  
+  <div id="setup">
+    <h3>API Key Setup</h3>
+    <p>Enter your Gemini API key to use this extension:</p>
+    <input type="text" id="apiKey" placeholder="Paste your Gemini API key here">
+    <p><small>Don't have an API key? <a href="https://aistudio.google.com/app/apikey" target="_blank">Get one here</a></small></p>
+    <button id="saveButton">Save API Key</button>
+    <div id="status" class="status" style="display: none;"></div>
+  </div>
+  
   <script src="popup.js"></script>
 </body>
 </html>
