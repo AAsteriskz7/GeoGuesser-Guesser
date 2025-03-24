@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Takes a screenshot of your webpage and uses the Gemini API to guess the location.",
   "icons": {
-    "128": "achueeo.jpg"
+    "128": "logo.jpg"
   },
   "permissions": [
     "activeTab",
@@ -16,7 +16,7 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "128": "achueeo.jpg"
+      "128": "logo.jpg"
     }
   }
 }
