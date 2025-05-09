@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const apiKeyInput = document.getElementById('apiKey');
     const saveButton = document.getElementById('saveButton');
     const statusDiv = document.getElementById('status');
+    const copyButton = document.getElementById('copyButton');
 
     // First, check if the API key is set
     chrome.storage.sync.get(['geminiApiKey'], (result) => {
@@ -38,29 +39,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         } else {
             // If API key exists, proceed with screenshot and API call
-            captureAndProcessScreenshot(result.geminiApiKey, resultDiv);
+            captureAndProcessScreenshot(result.geminiApiKey, resultDiv, copyButton);
         }
     });
-    
-    function showStatus(message, type) {
-        statusDiv.textContent = message;
-        statusDiv.className = 'status ' + type;
-        statusDiv.style.display = 'block';
-        
-        setTimeout(() => {
-            statusDiv.style.display = 'none';
-        }, 3000);
-    }
 });
 
-async function captureAndProcessScreenshot(apiKey, resultDiv) {
+function showStatus(message, type) {
+    statusDiv.textContent = message;
+    statusDiv.className = 'status ' + type;
+    statusDiv.style.display = 'block';
+    
+    setTimeout(() => {
+        statusDiv.style.display = 'none';
+    }, 3000);
+}
+
+async function captureAndProcessScreenshot(apiKey, resultDiv, copyButton) {
     chrome.tabs.captureVisibleTab(null, { format: 'png' }, async (dataUrl) => {
         if (chrome.runtime.lastError) {
             resultDiv.textContent = "Error capturing screenshot: " + chrome.runtime.lastError.message;
+            copyButton.style.display = 'none';
             return;
         }
 
         resultDiv.textContent = "Sending screenshot to Gemini API...";
+        copyButton.style.display = 'none';
         const base64Image = dataUrl.replace(/^data:image\/png;base64,/, '');
 
         const requestBody = {
@@ -94,9 +97,32 @@ async function captureAndProcessScreenshot(apiKey, resultDiv) {
             }
 
             const data = await apiResponse.json();
-            resultDiv.textContent = "Location: " + data.candidates[0].content.parts[0].text;
+            
+            // Improved response parsing
+            let locationText = "Could not extract location.";
+            if (data.candidates && data.candidates.length > 0 &&
+                data.candidates[0].content && data.candidates[0].content.parts &&
+                data.candidates[0].content.parts.length > 0 && data.candidates[0].content.parts[0].text) {
+                locationText = data.candidates[0].content.parts[0].text;
+                resultDiv.textContent = "Location: " + locationText;
+                copyButton.style.display = 'inline-block'; // Show copy button
+                copyButton.onclick = () => {
+                    navigator.clipboard.writeText(locationText)
+                        .then(() => showStatus('Location copied to clipboard!', 'success'))
+                        .catch(err => showStatus('Failed to copy: ' + err, 'error'));
+                };
+            } else {
+                resultDiv.textContent = "Location: " + locationText;
+                if (data.promptFeedback && data.promptFeedback.blockReason){
+                    resultDiv.textContent += ` (Blocked: ${data.promptFeedback.blockReason})`;
+                } else if (data.candidates && data.candidates.length > 0 && data.candidates[0].finishReason) {
+                    resultDiv.textContent += ` (Finish reason: ${data.candidates[0].finishReason})`;
+                }
+            }
+
         } catch (error) {
             resultDiv.textContent = "Error calling Gemini API: " + error.message;
+            copyButton.style.display = 'none';
         }
     });
 }
